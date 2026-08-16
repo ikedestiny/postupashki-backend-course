@@ -24,12 +24,11 @@ func main() {
 	help := flag.Bool("h", false, "Help option")
 	flag.Parse()
 
-	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Duration(*timeout)*time.Second)
-
 	if *help {
 		flag.Usage() // This prints the default usage text (which includes your flags)
 		return       // Exit the program
 	}
+	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Duration(*timeout)*time.Second)
 
 	urls := flag.Args()
 
