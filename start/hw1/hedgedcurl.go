@@ -20,15 +20,19 @@ type fetchResult struct {
 
 func main() {
 
-	timeout := flag.Int("t", 15, "timeout option")
-	help := flag.Bool("h", false, "Help option")
+	var timeout int
+	flag.IntVar(&timeout, "t", 15, "timeout in seconds")
+	flag.IntVar(&timeout, "timeout", 15, "timeout in seconds (alias for -t)")
+	// Help тоже добавим явно:
+	var help bool
+	flag.BoolVar(&help, "h", false, "show help")
+	flag.BoolVar(&help, "help", false, "show help")
 	flag.Parse()
 
-	if *help {
+	if help {
 		flag.Usage() // This prints the default usage text (which includes your flags)
 		return       // Exit the program
 	}
-	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Duration(*timeout)*time.Second)
 
 	urls := flag.Args()
 
@@ -37,6 +41,10 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
+
+	ctx, cancelFunc := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+
+	defer cancelFunc()
 
 	ch := make(chan fetchResult, len(urls))
 
@@ -85,7 +93,6 @@ func main() {
 
 		case <-ctx.Done():
 			fmt.Println("Request Timed out!!!!")
-			cancelFunc()
 			os.Exit(228)
 		}
 	}
