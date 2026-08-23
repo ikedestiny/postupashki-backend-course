@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"crypto-server/internal/models"
+	"hw2/internal/models"
 	"log"
 	"maps"
 	"slices"

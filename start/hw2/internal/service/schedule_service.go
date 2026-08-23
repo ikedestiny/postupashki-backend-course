@@ -1,8 +1,8 @@
 package service
 
 import (
-	"crypto-server/internal/models"
 	"errors"
+	"hw2/internal/models"
 	"sync"
 	"time"
 )

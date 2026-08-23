@@ -1,9 +1,9 @@
 package service
 
 import (
-	"crypto-server/internal/models"
-	"crypto-server/internal/repository"
 	"errors"
+	"hw2/internal/models"
+	"hw2/internal/repository"
 	"time"
 
 	"github.com/golang-jwt/jwt"

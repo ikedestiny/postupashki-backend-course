@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"crypto-server/internal/models"
-	"crypto-server/internal/service"
 	"encoding/json"
 	"fmt"
+	"hw2/internal/models"
+	"hw2/internal/service"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"

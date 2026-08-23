@@ -1,9 +1,9 @@
 package service
 
 import (
-	"crypto-server/internal/config"
 	"encoding/json"
 	"fmt"
+	"hw2/internal/config"
 	"io"
 	"log"
 	"net/http"

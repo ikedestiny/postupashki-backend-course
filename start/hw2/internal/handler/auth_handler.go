@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"crypto-server/internal/service"
 	"encoding/json"
+	"hw2/internal/service"
 	"net/http"
 )
 

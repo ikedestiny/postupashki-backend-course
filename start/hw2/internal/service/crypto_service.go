@@ -1,10 +1,10 @@
 package service
 
 import (
-	"crypto-server/internal/models"
-	"crypto-server/internal/repository"
 	"errors"
 	"fmt"
+	"hw2/internal/models"
+	"hw2/internal/repository"
 	"strings"
 	"time"
 )
