@@ -2,16 +2,13 @@ package service
 
 import (
 	"crypto-server/internal/config"
-	"crypto-server/internal/models"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strings"
 	"sync"
-	"time"
 )
 
 // CoinGeckoClient handles all CoinGecko API interactions
@@ -158,39 +155,4 @@ func (c *CoinGeckoClient) FetchPrice(coinID string) (float64, error) {
 	}
 
 	return price, nil
-}
-
-func (s *CryptoService) RefreshPrice(symbol string) (*models.Crypto, error) {
-	symbol = strings.ToUpper(symbol)
-
-	// Find the crypto
-	crypto := s.repo.FindCrypto(symbol)
-	if crypto == nil {
-		return nil, errors.New("crypto not found")
-	}
-
-	// Get CoinGecko ID
-	coinID, err := s.gecko.GetCoinID(symbol)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get CoinGecko ID: %w", err)
-	}
-
-	// Fetch new price
-	price, err := s.gecko.FetchPrice(coinID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch price: %w", err)
-	}
-
-	// Update crypto
-	crypto.CurrentPrice = price
-	crypto.LastUpdated = time.Now()
-	s.repo.SaveCrypto(crypto)
-
-	// Add to history
-	s.repo.AddHistory(symbol, models.PriceRecord{
-		Price:     price,
-		Timestamp: time.Now(),
-	})
-
-	return crypto, nil
 }

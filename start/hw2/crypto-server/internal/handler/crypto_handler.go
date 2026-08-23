@@ -4,6 +4,7 @@ import (
 	"crypto-server/internal/models"
 	"crypto-server/internal/service"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -86,4 +87,65 @@ func (h *CryptoHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode("{}")
+}
+
+// GetHistory handles GET /api/crypto/{symbol}/history
+func (h *CryptoHandler) GetHistory(w http.ResponseWriter, r *http.Request) {
+	symbol := chi.URLParam(r, "symbol")
+	if symbol == "" {
+		http.Error(w, `{"error": "symbol is required"}`, http.StatusBadRequest)
+		return
+	}
+
+	history, err := h.cryptoService.GetHistory(symbol)
+	if err != nil {
+		http.Error(w, `{"error": "`+err.Error()+`"}`, http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"symbol":  symbol,
+		"history": history,
+	})
+}
+
+// GetStats handles GET /api/crypto/{symbol}/stats
+func (h *CryptoHandler) GetStats(w http.ResponseWriter, r *http.Request) {
+	symbol := chi.URLParam(r, "symbol")
+	if symbol == "" {
+		http.Error(w, `{"error": "symbol is required"}`, http.StatusBadRequest)
+		return
+	}
+
+	stats, err := h.cryptoService.GetStats(symbol)
+	if err != nil {
+		http.Error(w, `{"error": "`+err.Error()+`"}`, http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(stats)
+}
+
+// handles /api/crypto/{symbol}/refresh
+// handles /api/crypto/{symbol}/refresh
+func (h *CryptoHandler) Refresh(w http.ResponseWriter, r *http.Request) {
+	symbol := chi.URLParam(r, "symbol")
+
+	if symbol == "" {
+		http.Error(w, `{"error": "symbol is required"}`, http.StatusBadRequest)
+		return
+	}
+
+	crypto, err := h.cryptoService.RefreshPrice(symbol)
+
+	if err != nil {
+		// Return the actual error message
+		http.Error(w, fmt.Sprintf(`{"error": "%s"}`, err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(crypto)
 }
