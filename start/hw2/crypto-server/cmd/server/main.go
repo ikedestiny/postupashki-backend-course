@@ -9,16 +9,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 )
 
 func main() {
-	// Load configuration
 	cfg := config.Load()
 
-	// Validate required config
 	if cfg.JWTSecret == "default-secret-change-me" {
 		log.Fatal("Please set JWT_SECRET in your .env file")
 	}
@@ -27,15 +24,21 @@ func main() {
 	userRepo := repository.NewUserRepository()
 	cryptoRepo := repository.NewCryptoRepository()
 
-	log.Println("CryptoRepository created at:", time.Now().Format("15:04:05"))
+	// 2. Initialize Clients
+	geckoClient := service.NewCoinGeckoClient(cfg)
 
-	// 2. Initialize Services
+	// Load coin list on startup (optional but recommended)
+	if err := geckoClient.LoadCoinList(); err != nil {
+		log.Printf("Warning: Failed to load CoinGecko coin list: %v", err)
+	}
+
+	// 3. Initialize Services
 	authService := service.NewAuthService(userRepo, cfg.JWTSecret)
-	cryptoService := service.NewCryptoService(cryptoRepo)
+	cryptoService := service.NewCryptoService(cryptoRepo, geckoClient)
 
-	// 3. Initialize Handlers
+	// 4. Initialize Handlers
 	authHandler := handler.NewAuthHandler(authService)
-	cryptoHandler := handler.NewCryptohandler(cryptoService)
+	cryptoHandler := handler.NewCryptoHandler(cryptoService)
 
 	// 4. Set up the router
 	r := chi.NewRouter()

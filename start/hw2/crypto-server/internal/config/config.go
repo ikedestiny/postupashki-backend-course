@@ -10,6 +10,7 @@ import (
 type Config struct {
 	JWTSecret string
 	Port      string
+	CG_KEY    string
 }
 
 func Load() *Config {
@@ -26,6 +27,7 @@ func Load() *Config {
 	return &Config{
 		JWTSecret: getEnv("JWT_SECRET", "default-secret-change-me"),
 		Port:      getEnv("PORT", "8080"),
+		CG_KEY:    getEnv("COIN_GECKO_API_KEY", "some bullsht"),
 	}
 }
 

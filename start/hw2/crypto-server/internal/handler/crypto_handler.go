@@ -21,7 +21,7 @@ type CreateResponse struct {
 	Crypto *models.Crypto `json:"crypto"`
 }
 
-func NewCryptohandler(cryptoService *service.CryptoService) *CryptoHandler {
+func NewCryptoHandler(cryptoService *service.CryptoService) *CryptoHandler {
 	return &CryptoHandler{cryptoService: cryptoService}
 }
 

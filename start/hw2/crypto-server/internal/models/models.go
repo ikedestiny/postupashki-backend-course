@@ -12,12 +12,12 @@ type User struct {
 type Crypto struct {
 	Symbol       string    `json:"symbol"`
 	Name         string    `json:"name"`
-	CurrentPrice float32   `json:"currentprice"`
+	CurrentPrice float64   `json:"currentprice"`
 	LastUpdated  time.Time `json:"lastupdated"`
 }
 
 type PriceRecord struct {
-	Price     float32   `json:"price"`
+	Price     float64   `json:"price"`
 	Timestamp time.Time `json:"timestamp"`
 }
 
