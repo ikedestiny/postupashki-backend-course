@@ -22,6 +22,10 @@ type CreateResponse struct {
 	Crypto *models.Crypto `json:"crypto"`
 }
 
+type ListAllResponse struct {
+	Cryptos []*models.Crypto `json:"cryptos"`
+}
+
 func NewCryptoHandler(cryptoService *service.CryptoService) *CryptoHandler {
 	return &CryptoHandler{cryptoService: cryptoService}
 }
@@ -58,7 +62,7 @@ func (h *CryptoHandler) ListAll(w http.ResponseWriter, r *http.Request) {
 	cryptos := h.cryptoService.ListAllCryptos()
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(cryptos)
+	json.NewEncoder(w).Encode(ListAllResponse{Cryptos: cryptos})
 }
 
 // GetBySymbol handles GET /api/crypto/{symbol}
@@ -128,8 +132,7 @@ func (h *CryptoHandler) GetStats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
-// handles /api/crypto/{symbol}/refresh
-// handles /api/crypto/{symbol}/refresh
+// handles /crypto/{symbol}/refresh
 func (h *CryptoHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	symbol := chi.URLParam(r, "symbol")
 
@@ -146,6 +149,9 @@ func (h *CryptoHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ✅ Return with "crypto" wrapper
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(crypto)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"crypto": crypto,
+	})
 }
