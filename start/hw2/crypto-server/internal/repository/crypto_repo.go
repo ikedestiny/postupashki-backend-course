@@ -2,6 +2,8 @@ package repository
 
 import (
 	"crypto-server/internal/models"
+	"maps"
+	"slices"
 	"sync"
 )
 
@@ -67,4 +69,17 @@ func (r *CryptoRepository) GetHistory(symbol string) []models.PriceRecord {
 		return []models.PriceRecord{}
 	}
 	return hist
+}
+
+func (r *CryptoRepository) GetAll() []*models.Crypto {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return slices.Collect(maps.Values(r.cryptos))
+}
+
+func (r *CryptoRepository) Exists(symbol string) bool {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	_, exists := r.cryptos[symbol]
+	return exists
 }
