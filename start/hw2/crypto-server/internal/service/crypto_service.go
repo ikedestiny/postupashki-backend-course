@@ -17,7 +17,7 @@ func NewCryptoService(cryptoRepo *repository.CryptoRepository) *CryptoService {
 }
 
 func (s *CryptoService) AddCrypto(symbol string) (*models.Crypto, error) {
-	if exists := s.cryptoRepo.Exists(symbol); !exists {
+	if exists := s.cryptoRepo.Exists(symbol); exists {
 		return nil, errors.New("crypto already exists")
 	}
 

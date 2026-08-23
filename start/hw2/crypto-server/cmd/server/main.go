@@ -6,10 +6,10 @@ import (
 	"crypto-server/internal/middleware"
 	"crypto-server/internal/repository"
 	"crypto-server/internal/service"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -25,12 +25,17 @@ func main() {
 
 	// 1. Initialize Repositories
 	userRepo := repository.NewUserRepository()
+	cryptoRepo := repository.NewCryptoRepository()
+
+	log.Println("CryptoRepository created at:", time.Now().Format("15:04:05"))
 
 	// 2. Initialize Services
 	authService := service.NewAuthService(userRepo, cfg.JWTSecret)
+	cryptoService := service.NewCryptoService(cryptoRepo)
 
 	// 3. Initialize Handlers
 	authHandler := handler.NewAuthHandler(authService)
+	cryptoHandler := handler.NewCryptohandler(cryptoService)
 
 	// 4. Set up the router
 	r := chi.NewRouter()
@@ -45,25 +50,10 @@ func main() {
 	r.Route("/api", func(r chi.Router) {
 		r.Use(middleware.AuthMiddleware(cfg.JWTSecret))
 
-		// Test endpoint to verify auth works
-		r.Get("/protected", func(w http.ResponseWriter, r *http.Request) {
-			username, ok := middleware.GetUsernameFromContext(r)
-			if !ok {
-				http.Error(w, `{"error": "user not found in context"}`, http.StatusInternalServerError)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(map[string]string{
-				"message":  "You are authenticated!",
-				"username": username,
-			})
-		})
-
-		// TODO: Add crypto CRUD routes here || all these will be protected
-		// r.Get("/crypto", cryptoHandler.ListAll)
-		// r.Post("/crypto", cryptoHandler.Create)
-		// r.Get("/crypto/{symbol}", cryptoHandler.GetBySymbol)
-		// r.Delete("/crypto/{symbol}", cryptoHandler.Delete)
+		r.Get("/crypto", cryptoHandler.ListAll)
+		r.Post("/crypto", cryptoHandler.Create)
+		r.Get("/crypto/{symbol}", cryptoHandler.GetBySymbol)
+		r.Delete("/crypto/{symbol}", cryptoHandler.Delete)
 	})
 
 	// 5. Start the server

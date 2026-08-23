@@ -2,6 +2,7 @@ package repository
 
 import (
 	"crypto-server/internal/models"
+	"log"
 	"maps"
 	"slices"
 	"sync"
@@ -23,12 +24,21 @@ func NewCryptoRepository() *CryptoRepository {
 func (r *CryptoRepository) SaveCrypto(crypto *models.Crypto) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+
+	// ADD DEBUG:
+	log.Printf("Saving crypto: %s", crypto.Symbol)
+
 	r.cryptos[crypto.Symbol] = crypto
 }
 
 func (r *CryptoRepository) FindCrypto(symbol string) *models.Crypto {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
+
+	// ADD DEBUG:
+	log.Printf("Looking for symbol: %s", symbol)
+	log.Printf("Current map keys: %v", getMapKeys(r.cryptos)) // You'll need to implement this
+
 	return r.cryptos[symbol]
 }
 
@@ -82,4 +92,13 @@ func (r *CryptoRepository) Exists(symbol string) bool {
 	defer r.mu.RUnlock()
 	_, exists := r.cryptos[symbol]
 	return exists
+}
+
+// Helper function for debugging
+func getMapKeys(m map[string]*models.Crypto) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }

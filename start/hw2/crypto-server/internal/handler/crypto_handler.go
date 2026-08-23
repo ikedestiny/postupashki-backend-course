@@ -42,7 +42,9 @@ func (h *CryptoHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err.Error() == "crypto already exists" {
 			http.Error(w, "already exists", http.StatusConflict)
+			return
 		}
+
 		http.Error(w, "something went wrong while trying to add crypto", http.StatusInternalServerError)
 		return
 	}
