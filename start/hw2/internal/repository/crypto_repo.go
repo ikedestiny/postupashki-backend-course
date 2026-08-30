@@ -25,9 +25,7 @@ func (r *CryptoRepository) SaveCrypto(crypto *models.Crypto) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// ADD DEBUG:
 	log.Printf("Saving crypto: %s", crypto.Symbol)
-
 	r.cryptos[crypto.Symbol] = crypto
 }
 
@@ -35,9 +33,8 @@ func (r *CryptoRepository) FindCrypto(symbol string) *models.Crypto {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	// ADD DEBUG:
 	log.Printf("Looking for symbol: %s", symbol)
-	log.Printf("Current map keys: %v", getMapKeys(r.cryptos)) // You'll need to implement this
+	log.Printf("Current map keys: %v", getMapKeys(r.cryptos))
 
 	return r.cryptos[symbol]
 }
@@ -60,25 +57,28 @@ func (r *CryptoRepository) AddHistory(symbol string, record models.PriceRecord) 
 
 	hist = append(hist, record)
 
-	//keep only last 100
+	// Keep only last 100
 	if len(hist) > 100 {
-		hist = hist[len(hist)-100:] //drop first 100
+		hist = hist[len(hist)-100:] // Drop first 100
 	}
 
 	r.history[symbol] = hist
-
 }
 
-// GetHistory returns a COPY of the history slice.
+// GetHistory returns a DEEP COPY of the history slice to prevent race conditions
 func (r *CryptoRepository) GetHistory(symbol string) []models.PriceRecord {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	// Return a copy so the caller can't accidentally modify the internal map
+
 	hist := r.history[symbol]
 	if hist == nil {
 		return []models.PriceRecord{}
 	}
-	return hist
+
+	// ✅ FIX: Return a deep copy with a new backing array
+	copyHist := make([]models.PriceRecord, len(hist))
+	copy(copyHist, hist)
+	return copyHist
 }
 
 func (r *CryptoRepository) GetAll() []*models.Crypto {

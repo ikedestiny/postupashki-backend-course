@@ -95,16 +95,21 @@ func (s *CryptoService) ListAllCryptos() []*models.Crypto {
 }
 
 func (s *CryptoService) GetCryptoBySymbol(symbol string) (*models.Crypto, error) {
+	// ✅ FIX: Convert to uppercase for case-insensitive lookup
+	symbol = strings.ToUpper(symbol)
+
 	if exists := s.repo.Exists(symbol); !exists {
 		return nil, errors.New("Crypto " + symbol + " not found")
 	}
 
 	crypto := s.repo.FindCrypto(symbol)
-
 	return crypto, nil
 }
 
 func (s *CryptoService) DeleteCrypto(symbol string) error {
+	// ✅ FIX: Convert to uppercase for case-insensitive lookup
+	symbol = strings.ToUpper(symbol)
+
 	if exists := s.repo.Exists(symbol); !exists {
 		return errors.New("No such crypto yet")
 	}
